@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -22,14 +24,35 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        // Log DB connection info for diagnostics
+        try {
+            $defaultConn = DB::getDefaultConnection();
+            $connConf = config('database.connections.' . $defaultConn, []);
+            Log::info('Register: DB connection', [
+                'connection' => $defaultConn,
+                'host' => $connConf['host'] ?? null,
+                'database' => $connConf['database'] ?? null,
+                'sslmode' => $connConf['sslmode'] ?? null,
+            ]);
 
-        // Create API token
-        $token = $user->createToken('auth-token')->plainTextToken;
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            // Create API token
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            Log::info('Register: user created', ['id' => $user->id, 'email' => $user->email]);
+        } catch (\Throwable $e) {
+            Log::error('Register: failed to create user', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,

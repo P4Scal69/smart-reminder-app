@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
+             
+            // TAMBAHKAN BARIS INI:
+        $table->geography('point', subtype: 'point', srid: 4326);
+        
             $table->integer('geofence_radius')->default(100); // in meters
             $table->text('notes')->nullable();
             $table->timestamps();

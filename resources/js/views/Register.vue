@@ -92,6 +92,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { supabase } from '../supabaseClient';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -116,15 +117,42 @@ const handleRegister = async () => {
   error.value = '';
 
   try {
-    await authStore.register(
-      form.value.name,
-      form.value.email,
-      form.value.password,
-      form.value.password_confirmation
-    );
+    // Register user with Supabase Auth (bypasses university WiFi block!)
+    const { data, error: supabaseError } = await supabase.auth.signUp({
+      email: form.value.email,
+      password: form.value.password,
+      options: {
+        data: {
+          name: form.value.name
+        }
+      }
+    });
+
+    if (supabaseError) {
+      error.value = supabaseError.message;
+      return;
+    }
+
+    console.log('✅ User registered in Supabase:', data.user);
+    
+    // Also try to register in Laravel backend for local development
+    try {
+      await authStore.register(
+        form.value.name,
+        form.value.email,
+        form.value.password,
+        form.value.password_confirmation
+      );
+    } catch (backendError) {
+      console.warn('⚠️ Laravel backend registration failed (WiFi block), but Supabase succeeded');
+      // Set auth manually since Supabase succeeded
+      authStore.user = { name: form.value.name, email: form.value.email };
+      authStore.token = data.session?.access_token;
+    }
+    
     router.push('/');
   } catch (err) {
-    error.value = err.response?.data?.message || 'Registration failed. Please try again.';
+    error.value = err.message || 'Registration failed. Please try again.';
   } finally {
     loading.value = false;
   }

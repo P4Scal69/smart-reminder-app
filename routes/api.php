@@ -29,6 +29,8 @@ Route::get('/health', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Diagnostic route removed
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     

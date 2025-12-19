@@ -15,6 +15,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.89.0",
         "@vitejs/plugin-vue": "^6.0.3",
         "leaflet": "^1.9.4",
         "pinia": "^3.0.4",

@@ -94,10 +94,26 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                   📍 Click on the map to select location
                 </label>
-                <div id="mapPicker" class="w-full h-80 rounded-lg border-2 border-gray-300 mb-2"></div>
-                <p class="text-xs text-gray-500">
-                  Tip: Click anywhere on the map to auto-fill coordinates and address. You can also enter them manually below.
-                </p>
+                <div class="relative">
+                  <div id="mapPicker" class="w-full h-80 rounded-lg border-2 border-blue-300 mb-2 cursor-crosshair shadow-lg"></div>
+                  <div v-if="!form.latitude || !form.longitude" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    <div class="bg-white bg-opacity-90 px-6 py-4 rounded-lg shadow-xl border-2 border-blue-500">
+                      <p class="text-lg font-semibold text-blue-600 text-center">👆 Click on the map to select location</p>
+                      <p class="text-sm text-gray-600 text-center mt-1">A marker will appear at the clicked point</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                  <p class="text-xs text-blue-800">
+                    <strong>How to use:</strong>
+                  </p>
+                  <ul class="text-xs text-blue-700 mt-1 space-y-1">
+                    <li>• <strong>Click</strong> anywhere on the map to place a marker</li>
+                    <li>• <strong>Drag</strong> the marker to adjust position</li>
+                    <li>• Address will be <strong>auto-filled</strong> from coordinates</li>
+                    <li>• Adjust the <strong>radius slider</strong> below to see geofence area</li>
+                  </ul>
+                </div>
               </div>
 
               <div>
@@ -204,6 +220,14 @@ import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
 const locations = ref([]);
 const loading = ref(true);
 const showModal = ref(false);
@@ -249,11 +273,23 @@ const initMap = async () => {
   const defaultLat = form.value.latitude || -6.2088;
   const defaultLng = form.value.longitude || 106.8456;
 
-  map = L.map('mapPicker').setView([defaultLat, defaultLng], 13);
+  map = L.map('mapPicker', {
+    center: [defaultLat, defaultLng],
+    zoom: 13,
+    zoomControl: true,
+    attributionControl: true
+  });
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
   }).addTo(map);
+
+  // Add custom CSS to show pointer cursor
+  const mapContainer = document.getElementById('mapPicker');
+  if (mapContainer) {
+    mapContainer.style.cursor = 'crosshair';
+  }
 
   // Add marker if coordinates exist
   if (form.value.latitude && form.value.longitude) {
