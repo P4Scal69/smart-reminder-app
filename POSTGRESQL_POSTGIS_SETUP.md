@@ -200,9 +200,12 @@ exit
 
 ### Test Create Location
 
-```php
+```powershell
 php artisan tinker
+```
 
+In Tinker, run:
+```php
 use App\Models\User;
 use App\Models\Location;
 use MatanYadaev\EloquentSpatial\Objects\Point;

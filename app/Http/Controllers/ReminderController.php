@@ -213,8 +213,8 @@ class ReminderController extends Controller
         // Find locations containing this point
         $locations = Auth::user()->locations()
             ->whereContains('geofence_area', new \MatanYadaev\EloquentSpatial\Objects\Point(
-                $validated['latitude'],
-                $validated['longitude']
+                $validated['longitude'],
+                $validated['latitude']
             ))
             ->pluck('id');
 

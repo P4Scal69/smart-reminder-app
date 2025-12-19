@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ReminderController;
 
@@ -16,10 +17,6 @@ use App\Http\Controllers\ReminderController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 // Public routes (no auth required)
 Route::get('/health', function () {
     return response()->json([
@@ -28,8 +25,19 @@ Route::get('/health', function () {
     ]);
 });
 
+// Authentication routes (public)
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
+    
+    // Auth routes (protected)
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     
     // Location routes
     Route::prefix('locations')->group(function () {

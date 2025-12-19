@@ -42,7 +42,7 @@ class LocationController extends Controller
         ]);
 
         // Create Point geometry
-        $point = new Point($validated['latitude'], $validated['longitude']);
+        $point = new Point($validated['longitude'], $validated['latitude']);
 
         // Create circular Polygon for geofence if radius is provided
         $geofenceArea = null;
@@ -119,7 +119,7 @@ class LocationController extends Controller
         if (isset($validated['latitude']) || isset($validated['longitude'])) {
             $lat = $validated['latitude'] ?? $location->latitude;
             $lng = $validated['longitude'] ?? $location->longitude;
-            $validated['point'] = new Point($lat, $lng);
+            $validated['point'] = new Point($lng, $lat);
         }
 
         // Update geofence area if radius or coordinates changed
@@ -171,7 +171,7 @@ class LocationController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        $point = new Point($validated['latitude'], $validated['longitude']);
+        $point = new Point($validated['longitude'], $validated['latitude'], 4326);
 
         $locations = Auth::user()->locations()
             ->whereContains('geofence_area', $point)
@@ -197,7 +197,7 @@ class LocationController extends Controller
             'distance' => 'nullable|integer|min:100|max:10000', // in meters
         ]);
 
-        $point = new Point($validated['latitude'], $validated['longitude']);
+        $point = new Point($validated['longitude'], $validated['latitude']);
         $distance = $validated['distance'] ?? 1000; // Default 1km
 
         $locations = Auth::user()->locations()
@@ -235,8 +235,8 @@ class LocationController extends Controller
             $lngOffset = ($radius * sin($angle)) / (111320 * cos(deg2rad($lat)));
             
             $points[] = new Point(
-                $lat + $latOffset,
-                $lng + $lngOffset
+                $lng + $lngOffset,
+                $lat + $latOffset
             );
         }
 

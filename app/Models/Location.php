@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MatanYadaev\EloquentSpatial\Objects\Point;
 use MatanYadaev\EloquentSpatial\Objects\Polygon;
+use MatanYadaev\EloquentSpatial\Objects\LineString; // WAJIB ADA
 use MatanYadaev\EloquentSpatial\Traits\HasSpatial;
 
 class Location extends Model
@@ -40,7 +41,7 @@ class Location extends Model
         'longitude' => 'decimal:8',
         'geofence_radius' => 'integer',
         'point' => Point::class,
-        'geofence_area' => Polygon::class,
+        'geofence_area' => Polygon::class . ':nullable',
     ];
 
     /**
@@ -70,17 +71,18 @@ class Location extends Model
     /**
      * Boot the model and set up event listeners.
      */
+    /**
+     * Boot the model and set up event listeners.
+     */
     protected static function boot()
     {
         parent::boot();
 
-        // Automatically create Point and Polygon geometry when saving
         static::saving(function ($location) {
             if ($location->latitude && $location->longitude) {
-                // Create Point geometry from lat/lng
-                $location->point = new Point($location->latitude, $location->longitude, 4326);
+                // PERBAIKAN: Urutan Longitude dulu baru Latitude
+                $location->point = new Point($location->longitude, $location->latitude, 4326);
                 
-                // Create circular Polygon geometry for geofence
                 if ($location->geofence_radius) {
                     $location->geofence_area = self::createCirclePolygon(
                         $location->latitude,
@@ -94,35 +96,31 @@ class Location extends Model
 
     /**
      * Create a circular polygon for geofence area.
-     *
-     * @param float $lat Latitude
-     * @param float $lng Longitude
-     * @param int $radius Radius in meters
-     * @return Polygon
      */
-    private static function createCirclePolygon(float $lat, float $lng, int $radius): Polygon
-    {
-        $points = [];
-        $segments = 36; // Number of segments to approximate circle
+   private static function createCirclePolygon(float $lat, float $lng, int $radius): Polygon
+{
+    $points = [];
+    $segments = 36;
+    $earthRadius = 6371000;
+    
+    $radiusLat = ($radius / $earthRadius) * (180 / pi());
+    $radiusLng = $radiusLat / cos(deg2rad($lat));
+    
+    for ($i = 0; $i <= $segments; $i++) {
+        $angle = ($i * 360 / $segments) * (pi() / 180);
+        $pLat = $lat + ($radiusLat * sin($angle));
+        $pLng = $lng + ($radiusLng * cos($angle));
         
-        // Earth's radius in meters
-        $earthRadius = 6371000;
-        
-        // Convert radius to degrees
-        $radiusLat = ($radius / $earthRadius) * (180 / pi());
-        $radiusLng = $radiusLat / cos(deg2rad($lat));
-        
-        // Create circle points
-        for ($i = 0; $i <= $segments; $i++) {
-            $angle = ($i * 360 / $segments) * (pi() / 180);
-            $pointLat = $lat + ($radiusLat * sin($angle));
-            $pointLng = $lng + ($radiusLng * cos($angle));
-            $points[] = new Point($pointLat, $pointLng, 4326);
-        }
-        
-        return new Polygon([$points], 4326);
+        // PostGIS / Spatial Library: (Longitude, Latitude)
+        $points[] = new Point($pLng, $pLat, 4326);
     }
-
+    
+    // Polygon membutuhkan ARRAY dari LineString. 
+    // LineString membutuhkan ARRAY dari Point.
+    return new Polygon([
+        new LineString($points)
+    ], 4326);
+}
     /**
      * Check if a given point is within the geofence.
      *

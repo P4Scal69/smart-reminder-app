@@ -1,0 +1,245 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Smart Reminder API",
+  "dateExported": "2025-12-18T11:15:00.000Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "req_health_check",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Health Check",
+      "url": "{{base_url}}/api/health",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req_register",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Register User",
+      "url": "{{base_url}}/api/register",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "set-env-var",
+          "custom": "json.data.token",
+          "action": "setto",
+          "value": "{{auth_token}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_login",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Login",
+      "url": "{{base_url}}/api/login",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "set-env-var",
+          "custom": "json.data.token",
+          "action": "setto",
+          "value": "{{auth_token}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_profile",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Get Profile",
+      "url": "{{base_url}}/api/profile",
+      "method": "GET",
+      "sortNum": 40000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req_list_locations",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "List Locations",
+      "url": "{{base_url}}/api/locations",
+      "method": "GET",
+      "sortNum": 50000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req_create_location",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Create Location",
+      "url": "{{base_url}}/api/locations",
+      "method": "POST",
+      "sortNum": 60000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"New Test Location\",\n  \"address\": \"Jakarta, Indonesia\",\n  \"latitude\": -6.2088,\n  \"longitude\": 106.8456,\n  \"geofence_radius\": 500,\n  \"notes\": \"Created via Thunder Client\"\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_check_geofence",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Check Geofence",
+      "url": "{{base_url}}/api/locations/check-geofence",
+      "method": "POST",
+      "sortNum": 70000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"latitude\": -6.1944,\n  \"longitude\": 106.8229\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_list_reminders",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "List Reminders",
+      "url": "{{base_url}}/api/reminders",
+      "method": "GET",
+      "sortNum": 80000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req_create_reminder",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Create Reminder",
+      "url": "{{base_url}}/api/reminders",
+      "method": "POST",
+      "sortNum": 90000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"location_id\": 1,\n  \"title\": \"New Test Reminder\",\n  \"description\": \"Created via Thunder Client\",\n  \"is_active\": true\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "req_logout",
+      "colId": "smart_reminder_api",
+      "containerId": "",
+      "name": "Logout",
+      "url": "{{base_url}}/api/logout",
+      "method": "POST",
+      "sortNum": 100000,
+      "created": "2025-12-18T11:15:00.000Z",
+      "modified": "2025-12-18T11:15:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{auth_token}}"
+        }
+      ],
+      "params": [],
+      "tests": []
+    }
+  ]
+}
