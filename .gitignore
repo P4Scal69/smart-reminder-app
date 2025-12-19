@@ -84,3 +84,10 @@ temp/
 .env.local
 .env.*.local
 Ringkasan Sesi Chat.md
+
+# Backups and database dumps (keep out of VCS)
+.env_backups/
+/backup_*.sql
+/supabase_*.sql
+/smart_reminder_backup.dump
+*.dump
