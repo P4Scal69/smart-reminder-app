@@ -7,6 +7,8 @@ import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Locations from '../views/LocationsCRUD.vue';
 import Reminders from '../views/RemindersCRUD.vue';
+import Profile from '../views/Profile.vue';
+import AlarmNotification from '../views/AlarmNotification.vue';
 
 const routes = [
   {
@@ -23,6 +25,10 @@ const routes = [
   },
   {
     path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
     meta: { requiresAuth: true }
@@ -38,6 +44,18 @@ const routes = [
     name: 'Reminders',
     component: Reminders,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/alarm',
+    name: 'AlarmNotification',
+    component: AlarmNotification,
+    meta: { requiresAuth: false } // Allow access without auth check for alarm page
   }
 ];
 
@@ -52,8 +70,10 @@ router.beforeEach((to, from, next) => {
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login');
-  } else if (to.meta.guest && authStore.isAuthenticated) {
-    next('/');
+  } else if (to.meta.requiresAuth && authStore.isAuthenticated && !authStore.emailVerified) {
+    next({ path: '/login', query: { verify: '1' } });
+  } else if (to.meta.guest && authStore.isFullyAuthenticated) {
+    next('/dashboard');
   } else {
     next();
   }

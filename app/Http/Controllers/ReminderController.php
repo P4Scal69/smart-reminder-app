@@ -44,6 +44,7 @@ class ReminderController extends Controller
             'location_id' => 'required|exists:locations,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'trigger_type' => 'nullable|in:entry,exit',
             'is_active' => 'nullable|boolean',
         ]);
 
@@ -60,6 +61,7 @@ class ReminderController extends Controller
             'location_id' => $validated['location_id'],
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'trigger_type' => $validated['trigger_type'] ?? 'entry',
             'is_active' => $validated['is_active'] ?? true,
         ]);
 
@@ -110,6 +112,7 @@ class ReminderController extends Controller
             'location_id' => 'sometimes|required|exists:locations,id',
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'trigger_type' => 'nullable|in:entry,exit',
             'is_active' => 'nullable|boolean',
         ]);
 

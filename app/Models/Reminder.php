@@ -18,6 +18,7 @@ class Reminder extends Model
         'location_id',
         'title',
         'description',
+        'trigger_type',
         'is_active',
         'triggered_at',
         'trigger_count',

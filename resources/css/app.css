@@ -1,11 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../**/*.vue';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Outfit', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand-50: #edf2ff;
+    --color-brand-100: #dce5ff;
+    --color-brand-500: #4f6bff;
+    --color-brand-600: #394de4;
+    --color-brand-700: #2b3abc;
+    --color-ink-900: #111827;
+    --shadow-soft: 0 10px 30px -18px rgba(17, 24, 39, 0.35);
+    --shadow-soft-lg: 0 20px 45px -24px rgba(17, 24, 39, 0.45);
+}
+
+@layer base {
+    body {
+        @apply min-h-screen bg-slate-100 text-slate-800;
+        background-image:
+            radial-gradient(1200px 500px at -10% -10%, rgba(79, 107, 255, 0.14), transparent),
+            radial-gradient(900px 400px at 110% 0%, rgba(56, 189, 248, 0.1), transparent);
+    }
+}
+
+@layer components {
+    .app-shell {
+        @apply min-h-screen bg-transparent;
+    }
+
+    .surface-card {
+        @apply rounded-2xl border border-slate-200 bg-white;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .surface-card-soft {
+        @apply rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-sm;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .metric-value {
+        @apply mt-1 text-3xl font-bold tracking-tight text-slate-900;
+    }
+
+    .top-nav-link {
+        @apply rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900;
+    }
+
+    .top-nav-link-active {
+        @apply bg-brand-50 text-brand-700;
+    }
+
+    .btn-brand {
+        @apply rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700;
+    }
+
+    .btn-ghost {
+        @apply rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50;
+    }
 }

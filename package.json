@@ -17,9 +17,11 @@
     "dependencies": {
         "@supabase/supabase-js": "^2.89.0",
         "@vitejs/plugin-vue": "^6.0.3",
+        "@vue-leaflet/vue-leaflet": "^0.10.1",
         "leaflet": "^1.9.4",
         "pinia": "^3.0.4",
         "vue": "^3.5.25",
+        "vue-leaflet": "^0.1.0",
         "vue-router": "^4.6.4"
     }
 }
