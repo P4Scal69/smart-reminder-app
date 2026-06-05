@@ -1,6 +1,30 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://jqkbksjrwsftsofojxqa.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxa2Jrc2pyd3NmdHNvZm9qeHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjY4ODQsImV4cCI6MjA4MTY0Mjg4NH0.BxaqBjNLNFePSs1h5zjVdFxICjofuDIgIll4vyHfZO0'
+let cachedClient = null
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export function getSupabaseClient() {
+	if (cachedClient) {
+		return cachedClient
+	}
+
+	const rawUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim()
+	const rawKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim()
+	const supabaseUrl = rawUrl.replace(/\/+$/, '')
+	const supabaseAnonKey = rawKey
+
+	if (!supabaseUrl || !supabaseAnonKey) {
+		throw new Error(
+			'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (build-time) and redeploy.'
+		)
+	}
+
+	try {
+		// eslint-disable-next-line no-new
+		new URL(supabaseUrl)
+	} catch {
+		throw new Error(`Invalid VITE_SUPABASE_URL: ${supabaseUrl}`)
+	}
+
+	cachedClient = createClient(supabaseUrl, supabaseAnonKey)
+	return cachedClient
+}

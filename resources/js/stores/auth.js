@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { supabase } from '../supabaseClient';
+import { getSupabaseClient } from '../supabaseClient';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -17,6 +17,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
+        const supabase = getSupabaseClient();
         const { data: supabaseData, error: supabaseError } = await supabase.auth.signInWithPassword({
           email,
           password,

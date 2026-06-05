@@ -178,7 +178,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import { supabase } from '../supabaseClient';
+import { getSupabaseClient } from '../supabaseClient';
 
 const mapPatternUrl = '/images/map-pattern.png';
 
@@ -255,6 +255,7 @@ const resendVerificationEmail = async () => {
   error.value = '';
 
   try {
+    const supabase = getSupabaseClient();
     const { error: resendError } = await supabase.auth.resend({
       type: 'signup',
       email: form.value.email,
@@ -284,6 +285,7 @@ const sendPasswordReset = async () => {
   forgotSuccessMessage.value = '';
 
   try {
+    const supabase = getSupabaseClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/login`,
     });
@@ -320,6 +322,7 @@ const handlePasswordRecovery = async () => {
   error.value = '';
 
   try {
+    const supabase = getSupabaseClient();
     const { error: updateError } = await supabase.auth.updateUser({
       password: recoveryForm.value.password,
     });

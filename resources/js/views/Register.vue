@@ -115,7 +115,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { supabase } from '../supabaseClient';
+import { getSupabaseClient } from '../supabaseClient';
 import axios from 'axios';
 
 const mapPatternUrl = '/images/map-pattern.png';
@@ -142,6 +142,7 @@ const handleRegister = async () => {
   error.value = '';
 
   try {
+    const supabase = getSupabaseClient();
     // Register user with Supabase Auth first (email verification source of truth)
     const { data, error: supabaseError } = await supabase.auth.signUp({
       email: form.value.email,

@@ -209,7 +209,6 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
-import { supabase } from '../supabaseClient'
 
 const router = useRouter()
 const authStore = useAuthStore()
