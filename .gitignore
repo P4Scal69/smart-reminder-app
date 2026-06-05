@@ -39,11 +39,9 @@ Thumbs.db
 !/storage/logs/.gitignore
 
 # Composer
-composer.lock
 composer.phar
 
 # NPM/Yarn
-package-lock.json
 yarn.lock
 yarn-error.log
 

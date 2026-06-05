@@ -9,3 +9,10 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Keep deploy archives lean (git archive)
+*.md export-ignore
+/tests export-ignore
+/thunder-tests export-ignore
+/api-tests.http export-ignore
+/test-api.ps1 export-ignore
