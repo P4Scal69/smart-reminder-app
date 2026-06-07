@@ -36,6 +36,8 @@ How you run the SQL depends on Railway UI/plan, but typically you can use the DB
 
 ## 4) Set Laravel environment variables
 
+**CRITICAL**: Railway's Laravel service must use **PostgreSQL** (not SQLite). The error `SQLSTATE[HY000]: General error: 1 no such function: ST_GeomFromText` means the app is connecting to SQLite instead of PostgreSQL/PostGIS.
+
 In Railway: open your **Laravel service** → **Variables** and set at least:
 
 ### Required
@@ -44,16 +46,30 @@ In Railway: open your **Laravel service** → **Variables** and set at least:
 - `APP_DEBUG=false`
 - `APP_KEY=` (generate this locally; see below)
 
-### Database (map from the Railway Postgres variables)
+### Database (REQUIRED — do NOT skip this)
 
-Set Laravel DB vars to match the Railway Postgres values:
+Railway auto-generates a PostgreSQL database. You **must** link it to your Laravel service:
 
-- `DB_CONNECTION=pgsql`
-- `DB_HOST=` (Railway host)
-- `DB_PORT=5432` (or Railway port)
-- `DB_DATABASE=`
-- `DB_USERNAME=`
-- `DB_PASSWORD=`
+1. In Railway, click **+ New** → **Database** → **PostgreSQL** (if not already added)
+2. In your Laravel service → **Variables**, set:
+
+   - `DB_CONNECTION=pgsql`
+   - `DB_HOST=` (from Railway Postgres `PGHOST`)
+   - `DB_PORT=5432` (from Railway Postgres `PGPORT`)
+   - `DB_DATABASE=` (from Railway Postgres `PGDATABASE`)
+   - `DB_USERNAME=` (from Railway Postgres `PGUSER`)
+   - `DB_PASSWORD=` (from Railway Postgres `PGPASSWORD`)
+   - `DB_SSLMODE=require` (Supabase requires SSL)
+
+   **Do NOT set `DB_CONNECTION=sqlite`**. If you see `sqlite` in the connection error, it means these variables are missing or incorrect.
+
+### Enable PostGIS
+
+Your migrations attempt to enable PostGIS automatically. If the first migration fails with a PostGIS permission/extension error, enable it manually on the Railway database:
+
+- Run this SQL on the database:
+
+  `CREATE EXTENSION IF NOT EXISTS postgis;`
 
 ### Recommended
 

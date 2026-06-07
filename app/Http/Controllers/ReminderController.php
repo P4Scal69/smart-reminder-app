@@ -213,15 +213,36 @@ class ReminderController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        // Find locations containing this point
-        $locations = Auth::user()->locations()
-            ->whereContains('geofence_area', new \MatanYadaev\EloquentSpatial\Objects\Point(
-                $validated['longitude'],
-                $validated['latitude']
-            ))
-            ->pluck('id');
+        $driver = DB::connection()->getDriverName();
+        $lat = $validated['latitude'];
+        $lng = $validated['longitude'];
 
-        // Get active reminders for those locations
+        if ($driver === 'pgsql') {
+            $locations = Auth::user()->locations()
+                ->whereContains('geofence_area', new \MatanYadaev\EloquentSpatial\Objects\Point(
+                    $lng,
+                    $lat
+                ))
+                ->pluck('id');
+        } else {
+            $radius = 100;
+            $locations = Auth::user()->locations()
+                ->select('id', 'latitude', 'longitude', 'geofence_radius')
+                ->get()
+                ->filter(function ($location) use ($lat, $lng) {
+                    $distance = 6371000 * acos(
+                        cos(deg2rad($lat)) *
+                        cos(deg2rad($location->latitude)) *
+                        cos(deg2rad($location->longitude) - deg2rad($lng)) +
+                        sin(deg2rad($lat)) *
+                        sin(deg2rad($location->latitude))
+                    );
+
+                    return $distance <= ($location->geofence_radius ?? 100);
+                })
+                ->pluck('id');
+        }
+
         $reminders = Auth::user()->reminders()
             ->whereIn('location_id', $locations)
             ->where('is_active', true)

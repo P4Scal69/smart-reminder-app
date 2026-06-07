@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use MatanYadaev\EloquentSpatial\Objects\Point;
 use MatanYadaev\EloquentSpatial\Objects\Polygon;
 use MatanYadaev\EloquentSpatial\Objects\LineString; // WAJIB ADA
@@ -131,14 +132,24 @@ class Location extends Model
     public function isWithinGeofence(float $lat, float $lng): bool
     {
         $point = new Point($lat, $lng, 4326);
-        
-        // Use PostGIS ST_DWithin for distance-based check
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            return static::query()
+                ->whereKey($this->id)
+                ->whereRaw('ST_DWithin(point::geography, ST_GeomFromText(?, 4326)::geography, ?)', [
+                    $point->toWkt(),
+                    $this->geofence_radius
+                ])
+                ->exists();
+        }
+
         return static::query()
             ->whereKey($this->id)
-            ->whereRaw('ST_DWithin(point::geography, ST_GeomFromText(?, 4326)::geography, ?)', [
-                $point->toWkt(),
-                $this->geofence_radius
-            ])
+            ->whereRaw(
+                '(6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?',
+                [$lat, $lng, $lat, $this->geofence_radius]
+            )
             ->exists();
     }
 
@@ -152,11 +163,20 @@ class Location extends Model
      */
     public function scopeWithinDistance($query, float $lat, float $lng, int $distance)
     {
-        $point = new Point($lat, $lng, 4326);
-        
-        return $query->whereRaw('ST_DWithin(point::geography, ST_GeomFromText(?, 4326)::geography, ?)', [
-            $point->toWkt(),
-            $distance
-        ]);
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            $point = new Point($lat, $lng, 4326);
+
+            return $query->whereRaw('ST_DWithin(point::geography, ST_GeomFromText(?, 4326)::geography, ?)', [
+                $point->toWkt(),
+                $distance
+            ]);
+        }
+
+        return $query->whereRaw(
+            '(6371000 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?',
+            [$lat, $lng, $lat, $distance]
+        );
     }
 }

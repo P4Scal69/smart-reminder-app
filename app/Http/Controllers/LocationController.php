@@ -172,11 +172,33 @@ class LocationController extends Controller
         ]);
 
         $point = new Point($validated['longitude'], $validated['latitude'], 4326);
+        $driver = DB::connection()->getDriverName();
+        $lat = $validated['latitude'];
+        $lng = $validated['longitude'];
 
-        $locations = Auth::user()->locations()
-            ->whereContains('geofence_area', $point)
-            ->with('reminders')
-            ->get();
+        $query = Auth::user()->locations();
+
+        if ($driver === 'pgsql') {
+            $locations = $query
+                ->whereContains('geofence_area', $point)
+                ->with('reminders')
+                ->get();
+        } else {
+            $locations = $query
+                ->select('id', 'latitude', 'longitude', 'geofence_radius')
+                ->get()
+                ->filter(function ($location) use ($lat, $lng) {
+                    $distance = 6371000 * acos(
+                        cos(deg2rad($lat)) *
+                        cos(deg2rad($location->latitude)) *
+                        cos(deg2rad($location->longitude) - deg2rad($lng)) +
+                        sin(deg2rad($lat)) *
+                        sin(deg2rad($location->latitude))
+                    );
+
+                    return $distance <= ($location->geofence_radius ?? 100);
+                });
+        }
 
         return response()->json([
             'success' => true,
@@ -199,11 +221,38 @@ class LocationController extends Controller
 
         $point = new Point($validated['longitude'], $validated['latitude']);
         $distance = $validated['distance'] ?? 1000; // Default 1km
+        $driver = DB::connection()->getDriverName();
+        $lat = $validated['latitude'];
+        $lng = $validated['longitude'];
 
-        $locations = Auth::user()->locations()
-            ->whereDistance('point', $point, '<=', $distance)
-            ->orderByDistance('point', $point)
-            ->get();
+        $query = Auth::user()->locations()->select('id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius');
+
+        if ($driver === 'pgsql') {
+            $locations = $query
+                ->whereDistance('point', $point, '<=', $distance)
+                ->orderByDistance('point', $point)
+                ->get();
+        } else {
+            $locations = $query
+                ->get()
+                ->map(function ($location) use ($lat, $lng, $distance) {
+                    $dist = 6371000 * acos(
+                        cos(deg2rad($lat)) *
+                        cos(deg2rad($location->latitude)) *
+                        cos(deg2rad($location->longitude) - deg2rad($lng)) +
+                        sin(deg2rad($lat)) *
+                        sin(deg2rad($location->latitude))
+                    );
+                    $location->distance = $dist;
+
+                    return $location;
+                })
+                ->filter(function ($location) use ($distance) {
+                    return $location->distance <= $distance;
+                })
+                ->sortBy('distance')
+                ->values();
+        }
 
         return response()->json([
             'success' => true,
