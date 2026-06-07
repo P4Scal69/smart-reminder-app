@@ -15,6 +15,32 @@ class Location extends Model
 {
     use HasSpatial;
 
+    protected static ?bool $postgisAvailable = null;
+
+    protected static function postgisAvailable(): bool
+    {
+        if (static::$postgisAvailable !== null) {
+            return static::$postgisAvailable;
+        }
+
+        try {
+            DB::connection()->getPdo();
+            $driver = DB::connection()->getDriverName();
+
+            if ($driver === 'pgsql') {
+                DB::select("SELECT 1 FROM geometry_columns WHERE f_table_name = 'locations' LIMIT 1");
+                static::$postgisAvailable = true;
+
+                return true;
+            }
+        } catch (\Throwable $e) {
+        }
+
+        static::$postgisAvailable = false;
+
+        return false;
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -81,15 +107,16 @@ class Location extends Model
 
         static::saving(function ($location) {
             if ($location->latitude && $location->longitude) {
-                // PERBAIKAN: Urutan Longitude dulu baru Latitude
-                $location->point = new Point($location->longitude, $location->latitude, 4326);
-                
-                if ($location->geofence_radius) {
-                    $location->geofence_area = self::createCirclePolygon(
-                        $location->latitude,
-                        $location->longitude,
-                        $location->geofence_radius
-                    );
+                if (static::postgisAvailable()) {
+                    $location->point = new Point($location->longitude, $location->latitude, 4326);
+                    
+                    if ($location->geofence_radius) {
+                        $location->geofence_area = self::createCirclePolygon(
+                            $location->latitude,
+                            $location->longitude,
+                            $location->geofence_radius
+                        );
+                    }
                 }
             }
         });

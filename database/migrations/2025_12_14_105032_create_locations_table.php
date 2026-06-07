@@ -13,12 +13,17 @@ return new class extends Migration
     public function up(): void
     {
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
+        $hasPostgis = false;
 
-        // Enable PostGIS extension if not already enabled (PostgreSQL only)
         if ($isPgsql) {
-            DB::statement('CREATE EXTENSION IF NOT EXISTS postgis');
+            try {
+                DB::statement('CREATE EXTENSION IF NOT EXISTS postgis');
+                $hasPostgis = true;
+            } catch (\Throwable $e) {
+                // PostGIS not available on this server; spatial features will be skipped
+            }
         }
-        
+
         Schema::create('locations', function (Blueprint $table) use ($isPgsql) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -29,23 +34,19 @@ return new class extends Migration
             $table->integer('geofence_radius')->default(100); // in meters
             $table->text('notes')->nullable();
 
-            // Non-PostgreSQL fallback columns (keeps migrations runnable on SQLite)
-            if (! $isPgsql) {
-                $table->text('point')->nullable();
-                $table->text('geofence_area')->nullable();
-            }
-
             $table->timestamps();
         });
-        
-        if ($isPgsql) {
-            // Add PostGIS geometry columns using raw SQL
-            DB::statement('ALTER TABLE locations ADD COLUMN point GEOMETRY(POINT, 4326)');
-            DB::statement('ALTER TABLE locations ADD COLUMN geofence_area GEOMETRY(POLYGON, 4326)');
 
-            // Create spatial indexes for better query performance
-            DB::statement('CREATE INDEX locations_point_idx ON locations USING GIST (point)');
-            DB::statement('CREATE INDEX locations_geofence_area_idx ON locations USING GIST (geofence_area)');
+        if ($isPgsql && $hasPostgis) {
+            try {
+                DB::statement('ALTER TABLE locations ADD COLUMN point GEOMETRY(POINT, 4326)');
+                DB::statement('ALTER TABLE locations ADD COLUMN geofence_area GEOMETRY(POLYGON, 4326)');
+
+                DB::statement('CREATE INDEX locations_point_idx ON locations USING GIST (point)');
+                DB::statement('CREATE INDEX locations_geofence_area_idx ON locations USING GIST (geofence_area)');
+            } catch (\Throwable $e) {
+                // Spatial columns/indexes could not be created
+            }
         }
     }
 
