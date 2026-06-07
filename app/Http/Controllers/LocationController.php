@@ -38,19 +38,6 @@ class LocationController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Create Point geometry
-        $point = new Point($validated['longitude'], $validated['latitude']);
-
-        // Create circular Polygon for geofence if radius is provided
-        $geofenceArea = null;
-        if (isset($validated['geofence_radius'])) {
-            $geofenceArea = $this->createCircularPolygon(
-                $validated['latitude'],
-                $validated['longitude'],
-                $validated['geofence_radius']
-            );
-        }
-
         $location = Auth::user()->locations()->create([
             'name' => $validated['name'],
             'address' => $validated['address'] ?? null,
@@ -153,30 +140,20 @@ class LocationController extends Controller
         $lat = $validated['latitude'];
         $lng = $validated['longitude'];
 
-        $query = Auth::user()->locations();
+        $locations = Auth::user()->locations()
+            ->select('id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius', 'notes', 'created_at', 'updated_at')
+            ->get()
+            ->filter(function ($location) use ($lat, $lng) {
+                $distance = 6371000 * acos(
+                    cos(deg2rad($lat)) *
+                    cos(deg2rad($location->latitude)) *
+                    cos(deg2rad($location->longitude) - deg2rad($lng)) +
+                    sin(deg2rad($lat)) *
+                    sin(deg2rad($location->latitude))
+                );
 
-        if (Location::postgisAvailable()) {
-            $point = new Point($validated['longitude'], $validated['latitude'], 4326);
-            $locations = $query
-                ->whereContains('geofence_area', $point)
-                ->with('reminders')
-                ->get();
-        } else {
-            $locations = $query
-                ->select('id', 'latitude', 'longitude', 'geofence_radius')
-                ->get()
-                ->filter(function ($location) use ($lat, $lng) {
-                    $distance = 6371000 * acos(
-                        cos(deg2rad($lat)) *
-                        cos(deg2rad($location->latitude)) *
-                        cos(deg2rad($location->longitude) - deg2rad($lng)) +
-                        sin(deg2rad($lat)) *
-                        sin(deg2rad($location->latitude))
-                    );
-
-                    return $distance <= ($location->geofence_radius ?? 100);
-                });
-        }
+                return $distance <= ($location->geofence_radius ?? 100);
+            });
 
         return response()->json([
             'success' => true,
@@ -197,39 +174,30 @@ class LocationController extends Controller
             'distance' => 'nullable|integer|min:100|max:10000', // in meters
         ]);
 
-        $point = new Point($validated['longitude'], $validated['latitude']);
         $distance = $validated['distance'] ?? 1000; // Default 1km
         $lat = $validated['latitude'];
         $lng = $validated['longitude'];
 
-        $query = Auth::user()->locations()->select('id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius');
+        $locations = Auth::user()->locations()
+            ->select('id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius')
+            ->get()
+            ->map(function ($location) use ($lat, $lng, $distance) {
+                $dist = 6371000 * acos(
+                    cos(deg2rad($lat)) *
+                    cos(deg2rad($location->latitude)) *
+                    cos(deg2rad($location->longitude) - deg2rad($lng)) +
+                    sin(deg2rad($lat)) *
+                    sin(deg2rad($location->latitude))
+                );
+                $location->distance = $dist;
 
-        if (Location::postgisAvailable()) {
-            $locations = $query
-                ->whereDistance('point', $point, '<=', $distance)
-                ->orderByDistance('point', $point)
-                ->get();
-        } else {
-            $locations = $query
-                ->get()
-                ->map(function ($location) use ($lat, $lng, $distance) {
-                    $dist = 6371000 * acos(
-                        cos(deg2rad($lat)) *
-                        cos(deg2rad($location->latitude)) *
-                        cos(deg2rad($location->longitude) - deg2rad($lng)) +
-                        sin(deg2rad($lat)) *
-                        sin(deg2rad($location->latitude))
-                    );
-                    $location->distance = $dist;
-
-                    return $location;
-                })
-                ->filter(function ($location) use ($distance) {
-                    return $location->distance <= $distance;
-                })
-                ->sortBy('distance')
-                ->values();
-        }
+                return $location;
+            })
+            ->filter(function ($location) use ($distance) {
+                return $location->distance <= $distance;
+            })
+            ->sortBy('distance')
+            ->values();
 
         return response()->json([
             'success' => true,
