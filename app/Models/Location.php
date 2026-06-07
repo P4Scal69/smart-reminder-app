@@ -32,7 +32,13 @@ class Location extends Model
                 return false;
             }
 
-            DB::select("SELECT 1 FROM information_schema.columns WHERE table_name = 'locations' AND column_name = 'point' LIMIT 1");
+            $result = DB::select("SELECT 1 FROM information_schema.columns WHERE table_name = 'locations' AND column_name = 'point' LIMIT 1");
+
+            if (empty($result)) {
+                static::$postgisAvailable = false;
+
+                return false;
+            }
 
             static::$postgisAvailable = true;
 
