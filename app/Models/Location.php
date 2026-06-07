@@ -67,16 +67,22 @@ class Location extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'geofence_radius' => 'integer',
-        'point' => Point::class,
-        'geofence_area' => Polygon::class . ':nullable',
     ];
 
-    /**
-     * Get the user that owns the location.
-     */
-    public function user(): BelongsTo
+    protected static function postgisAvailable(): bool
     {
-        return $this->belongsTo(User::class);
+        try {
+            $driver = DB::connection()->getDriverName();
+
+            if ($driver === 'pgsql') {
+                DB::select("SELECT 1 FROM geometry_columns WHERE f_table_name = 'locations' LIMIT 1");
+
+                return true;
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return false;
     }
 
     /**
