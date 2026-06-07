@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    public $transaction = false;
+
     /**
      * Run the migrations.
      */
