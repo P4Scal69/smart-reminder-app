@@ -408,8 +408,8 @@ const openEditModal = async (location) => {
   form.value = {
     name: location.name,
     address: location.address || '',
-    latitude: location.coordinates?.coordinates[1] || 6.471774051901331,
-    longitude: location.coordinates?.coordinates[0] || 100.50018143333673,
+    latitude: location.latitude || 6.471774051901331,
+    longitude: location.longitude || 100.50018143333673,
     geofence_radius: location.geofence_radius || 100
   };
   formError.value = '';

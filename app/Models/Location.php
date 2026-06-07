@@ -24,21 +24,24 @@ class Location extends Model
         }
 
         try {
-            DB::connection()->getPdo();
             $driver = DB::connection()->getDriverName();
 
-            if ($driver === 'pgsql') {
-                DB::select("SELECT 1 FROM geometry_columns WHERE f_table_name = 'locations' LIMIT 1");
-                static::$postgisAvailable = true;
+            if ($driver !== 'pgsql') {
+                static::$postgisAvailable = false;
 
-                return true;
+                return false;
             }
+
+            DB::select("SELECT 1 FROM information_schema.columns WHERE table_name = 'locations' AND column_name = 'point' LIMIT 1");
+
+            static::$postgisAvailable = true;
+
+            return true;
         } catch (\Throwable $e) {
+            static::$postgisAvailable = false;
+
+            return false;
         }
-
-        static::$postgisAvailable = false;
-
-        return false;
     }
 
     /**
@@ -53,8 +56,6 @@ class Location extends Model
         'latitude',
         'longitude',
         'geofence_radius',
-        'point',
-        'geofence_area',
         'notes',
     ];
 
@@ -68,22 +69,6 @@ class Location extends Model
         'longitude' => 'decimal:8',
         'geofence_radius' => 'integer',
     ];
-
-    protected static function postgisAvailable(): bool
-    {
-        try {
-            $driver = DB::connection()->getDriverName();
-
-            if ($driver === 'pgsql') {
-                DB::select("SELECT 1 FROM geometry_columns WHERE f_table_name = 'locations' LIMIT 1");
-
-                return true;
-            }
-        } catch (\Throwable $e) {
-        }
-
-        return false;
-    }
 
     /**
      * Get the reminders for the location.
@@ -115,7 +100,7 @@ class Location extends Model
             if ($location->latitude && $location->longitude) {
                 if (static::postgisAvailable()) {
                     $location->point = new Point($location->longitude, $location->latitude, 4326);
-                    
+
                     if ($location->geofence_radius) {
                         $location->geofence_area = self::createCirclePolygon(
                             $location->latitude,
@@ -165,9 +150,8 @@ class Location extends Model
     public function isWithinGeofence(float $lat, float $lng): bool
     {
         $point = new Point($lat, $lng, 4326);
-        $driver = DB::connection()->getDriverName();
 
-        if ($driver === 'pgsql') {
+        if (static::postgisAvailable()) {
             return static::query()
                 ->whereKey($this->id)
                 ->whereRaw('ST_DWithin(point::geography, ST_GeomFromText(?, 4326)::geography, ?)', [

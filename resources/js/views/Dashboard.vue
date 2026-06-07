@@ -387,8 +387,8 @@ const checkGeofencesTriggers = (userLat, userLng) => {
   reminders.value.forEach(reminder => {
     if (!reminder.is_active || !reminder.location) return;
 
-    const locLat = reminder.location.latitude || reminder.location.coordinates?.latitude;
-    const locLng = reminder.location.longitude || reminder.location.coordinates?.longitude;
+    const locLat = reminder.location.latitude;
+    const locLng = reminder.location.longitude;
     const radius = reminder.location.geofence_radius || 100;
 
     const distance = calculateDistance(userLat, userLng, locLat, locLng);
@@ -520,9 +520,8 @@ const focusOnLocation = (locationId) => {
     return;
   }
 
-  // Get coordinates - handle both direct properties and nested coordinates object
-  const lat = location.coordinates?.latitude || location.latitude;
-  const lng = location.coordinates?.longitude || location.longitude;
+  const lat = location.latitude;
+  const lng = location.longitude;
 
   if (!lat || !lng) {
     console.log('No valid coordinates found');
@@ -628,8 +627,8 @@ const useFallbackLocation = () => {
   });
 
   const centerLoc = locationsWithActiveReminders[0] || locations.value[0];
-  const lat = centerLoc?.coordinates?.latitude || 6.471774051901331;
-  const lng = centerLoc?.coordinates?.longitude || 100.50018143333673;
+  const lat = centerLoc?.latitude || 6.471774051901331;
+  const lng = centerLoc?.longitude || 100.50018143333673;
   
   createMap(lat, lng);
 };
@@ -682,18 +681,16 @@ const createMap = (lat, lng) => {
   if (locations.value.length > 0) {
     const bounds = L.latLngBounds(
         locations.value
-        .filter(loc => loc.coordinates)
-        .map(loc => [loc.coordinates.latitude, loc.coordinates.longitude])
+        .map(loc => [loc.latitude, loc.longitude])
     );
-    map.fitBounds(bounds, { padding: [50, 50] });
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
   }
 };
 
 const addMarkersToMap = () => {
   locations.value.forEach(location => {
-    // Get coordinates - handle both direct properties and nested coordinates object
-    const lat = location.coordinates?.latitude || location.latitude;
-    const lng = location.coordinates?.longitude || location.longitude;
+    const lat = location.latitude;
+    const lng = location.longitude;
 
     if (lat && lng) {
       // Get active reminders for this location
@@ -754,7 +751,7 @@ const addMarkersToMap = () => {
 
       // Add geofence circle if radius exists (more visible)
       if (location.geofence_radius) {
-        L.circle([location.coordinates.latitude, location.coordinates.longitude], {
+        L.circle([location.latitude, location.longitude], {
           radius: location.geofence_radius,
           color: '#ef4444',
           fillColor: '#fecaca',

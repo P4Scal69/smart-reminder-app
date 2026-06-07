@@ -213,11 +213,10 @@ class ReminderController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        $driver = DB::connection()->getDriverName();
         $lat = $validated['latitude'];
         $lng = $validated['longitude'];
 
-        if ($driver === 'pgsql') {
+        if (Location::postgisAvailable()) {
             $locations = Auth::user()->locations()
                 ->whereContains('geofence_area', new \MatanYadaev\EloquentSpatial\Objects\Point(
                     $lng,

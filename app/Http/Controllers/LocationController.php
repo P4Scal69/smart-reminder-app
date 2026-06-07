@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use MatanYadaev\EloquentSpatial\Objects\Point;
-use MatanYadaev\EloquentSpatial\Objects\Polygon;
-use MatanYadaev\EloquentSpatial\Objects\LineString;
 
 class LocationController extends Controller
 {
@@ -60,8 +57,6 @@ class LocationController extends Controller
             'latitude' => $validated['latitude'],
             'longitude' => $validated['longitude'],
             'geofence_radius' => $validated['geofence_radius'] ?? 100,
-            'point' => $point,
-            'geofence_area' => $geofenceArea,
             'notes' => $validated['notes'] ?? null,
         ]);
 
@@ -115,22 +110,6 @@ class LocationController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Update Point if coordinates changed
-        if (isset($validated['latitude']) || isset($validated['longitude'])) {
-            $lat = $validated['latitude'] ?? $location->latitude;
-            $lng = $validated['longitude'] ?? $location->longitude;
-            $validated['point'] = new Point($lng, $lat);
-        }
-
-        // Update geofence area if radius or coordinates changed
-        if (isset($validated['geofence_radius']) || isset($validated['latitude']) || isset($validated['longitude'])) {
-            $lat = $validated['latitude'] ?? $location->latitude;
-            $lng = $validated['longitude'] ?? $location->longitude;
-            $radius = $validated['geofence_radius'] ?? $location->geofence_radius;
-
-            $validated['geofence_area'] = $this->createCircularPolygon($lat, $lng, $radius);
-        }
-
         $location->update($validated);
 
         return response()->json([
@@ -171,14 +150,13 @@ class LocationController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        $point = new Point($validated['longitude'], $validated['latitude'], 4326);
-        $driver = DB::connection()->getDriverName();
         $lat = $validated['latitude'];
         $lng = $validated['longitude'];
 
         $query = Auth::user()->locations();
 
-        if ($driver === 'pgsql') {
+        if (Location::postgisAvailable()) {
+            $point = new Point($validated['longitude'], $validated['latitude'], 4326);
             $locations = $query
                 ->whereContains('geofence_area', $point)
                 ->with('reminders')
@@ -221,13 +199,12 @@ class LocationController extends Controller
 
         $point = new Point($validated['longitude'], $validated['latitude']);
         $distance = $validated['distance'] ?? 1000; // Default 1km
-        $driver = DB::connection()->getDriverName();
         $lat = $validated['latitude'];
         $lng = $validated['longitude'];
 
         $query = Auth::user()->locations()->select('id', 'name', 'address', 'latitude', 'longitude', 'geofence_radius');
 
-        if ($driver === 'pgsql') {
+        if (Location::postgisAvailable()) {
             $locations = $query
                 ->whereDistance('point', $point, '<=', $distance)
                 ->orderByDistance('point', $point)
@@ -259,36 +236,5 @@ class LocationController extends Controller
             'data' => $locations,
             'count' => $locations->count()
         ]);
-    }
-
-    /**
-     * Create a circular polygon approximation for geofence.
-     * 
-     * @param float $lat Latitude
-     * @param float $lng Longitude
-     * @param int $radius Radius in meters
-     * @return Polygon
-     */
-    private function createCircularPolygon($lat, $lng, $radius)
-    {
-        $points = [];
-        $numberOfPoints = 32; // More points = smoother circle
-
-        for ($i = 0; $i <= $numberOfPoints; $i++) {
-            $angle = ($i / $numberOfPoints) * 2 * M_PI;
-            
-            // Calculate offset in degrees (approximate)
-            // 1 degree latitude ≈ 111,320 meters
-            // 1 degree longitude ≈ 111,320 * cos(latitude) meters
-            $latOffset = ($radius * cos($angle)) / 111320;
-            $lngOffset = ($radius * sin($angle)) / (111320 * cos(deg2rad($lat)));
-            
-            $points[] = new Point(
-                $lng + $lngOffset,
-                $lat + $latOffset
-            );
-        }
-
-        return new Polygon([new LineString($points)]);
     }
 }

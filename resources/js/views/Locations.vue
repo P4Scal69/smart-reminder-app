@@ -42,8 +42,8 @@
           <h3 class="text-lg font-bold text-gray-800">{{ location.name }}</h3>
           <p class="text-gray-600 text-sm mt-2">{{ location.address }}</p>
           <div class="mt-4 text-sm text-gray-500">
-            <p>Lat: {{ location.coordinates?.latitude }}</p>
-            <p>Lng: {{ location.coordinates?.longitude }}</p>
+            <p>Lat: {{ location.latitude }}</p>
+            <p>Lng: {{ location.longitude }}</p>
           </div>
         </div>
       </div>
