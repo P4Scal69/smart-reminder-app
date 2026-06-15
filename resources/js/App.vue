@@ -40,15 +40,15 @@
               : ''"
             @click="handleNavClick"
           >
-<span class="flex items-center gap-3" :class="sidebarCollapsed ? 'lg:mx-auto lg:justify-center' : ''">
-               <span
-                 class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
-                 :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
-               >
-                 <component :is="iconComponent(item.icon)" class="h-5 w-5 text-white" />
-               </span>
-               <span v-if="!sidebarCollapsed">{{ item.label }}</span>
-             </span>
+            <span class="flex items-center gap-3" :class="sidebarCollapsed ? 'lg:mx-auto lg:justify-center' : ''">
+              <span
+                class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
+                :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
+              >
+                <component :is="iconComponent(item.icon)" class="h-5 w-5 text-white" />
+              </span>
+              <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+            </span>
           </router-link>
         </nav>
 
@@ -64,28 +64,27 @@
         </router-link>
       </aside>
 
-<div class="flex-1 lg:ml-0">
-         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-           <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-             <div class="flex items-center gap-3">
-               <div>
-                 <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Smart Reminder</p>
-                 <h1 class="text-lg font-bold text-slate-900">Location Intelligence Dashboard</h1>
-               </div>
-             </div>
+      <div class="flex-1 lg:ml-0">
+        <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
+          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-3">
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Smart Reminder</p>
+                <h1 class="text-lg font-bold text-slate-900">Location Intelligence Dashboard</h1>
+              </div>
+            </div>
 
-             <div class="flex items-center gap-3">
-               <div class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 sm:block">
-                 {{ authStore.user?.name || 'User' }}
-               </div>
-               <button @click="logout" class="btn-brand">Logout</button>
-             </div>
-           </div>
-         </header>
-         <main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
-           <router-view />
-         </main>
-       </div>
+            <div class="flex items-center gap-3">
+              <div class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 sm:block">
+                {{ authStore.user?.name || 'User' }}
+              </div>
+              <button @click="logout" class="btn-brand">Logout</button>
+            </div>
+          </div>
+        </header>
+        <main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
+          <router-view />
+        </main>
       </div>
 
       <div
