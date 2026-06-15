@@ -6,7 +6,7 @@
         class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:h-screen flex flex-col"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'p-5 lg:w-72'
+          sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'px-5 lg:w-64'
         ]"
       >
         <div class="flex-shrink-0">
