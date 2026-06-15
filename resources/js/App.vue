@@ -2,64 +2,66 @@
   <div id="app" class="app-shell">
     <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex lg:ml-0">
       <!-- Sidebar (full on desktop, overlay on mobile) -->
-      <aside
-        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static"
+<aside
+        class="flex flex-col h-full fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'p-5 lg:w-72'
         ]"
       >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                class="flex items-center gap-3"
+                :class="sidebarCollapsed && 'lg:mx-auto'"
+                @click="toggleSidebarCollapsed"
+                aria-label="Toggle sidebar collapse"
+              >
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
+                <div class="text-left" :class="sidebarCollapsed && 'lg:hidden'">
+                  <p class="text-lg font-bold text-white">Smart Reminder</p>
+                </div>
+              </button>
+            </div>
             <button
-              type="button"
-              class="flex items-center gap-3"
-              :class="sidebarCollapsed && 'lg:mx-auto'"
-              @click="toggleSidebarCollapsed"
-              aria-label="Toggle sidebar collapse"
+              class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
+              @click="sidebarOpen = false"
+              aria-label="Close sidebar"
             >
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
-              <div class="text-left" :class="sidebarCollapsed && 'lg:hidden'">
-                <p class="text-lg font-bold text-white">Smart Reminder</p>
-              </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </button>
           </div>
-          <button
-            class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
-            @click="sidebarOpen = false"
-            aria-label="Close sidebar"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
 
-        <nav class="mt-8 space-y-2">
-          <router-link
-            v-for="item in navItems"
-            :key="item.to"
-            :to="item.to"
-            class="top-nav-link flex items-center text-white/85 hover:bg-white/10 hover:text-white"
-            :class="isRouteActive(item.to)
-              ? '!bg-emerald-200 !py-3 !text-black hover:!bg-emerald-200 hover:!text-black'
-              : ''"
-            @click="handleNavClick"
-          >
-            <span class="flex items-center gap-3 lg:justify-center" :class="sidebarCollapsed && 'lg:mx-auto'">
-              <span
-                class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
-                :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
-                v-html="iconSvg(item.icon)"
-              ></span>
-              <span v-show="!sidebarCollapsed">{{ item.label }}</span>
-            </span>
-          </router-link>
-        </nav>
+          <nav class="mt-8 space-y-2">
+            <router-link
+              v-for="item in navItems"
+              :key="item.to"
+              :to="item.to"
+              class="top-nav-link flex items-center text-white/85 hover:bg-white/10 hover:text-white"
+              :class="isRouteActive(item.to)
+                ? '!bg-emerald-200 !py-3 !text-black hover:!bg-emerald-200 hover:!text-black'
+                : ''"
+              @click="handleNavClick"
+            >
+              <span class="flex items-center gap-3 lg:justify-center" :class="sidebarCollapsed && 'lg:mx-auto'">
+                <span
+                  class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
+                  :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
+                  v-html="iconSvg(item.icon)"
+                ></span>
+                <span v-show="!sidebarCollapsed">{{ item.label }}</span>
+              </span>
+            </router-link>
+          </nav>
+        </div>
 
         <router-link
           to="/profile"
-          class="mt-auto block rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+          class="flex-shrink-0 rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 mt-auto"
           @click="handleNavClick"
         >
           <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
