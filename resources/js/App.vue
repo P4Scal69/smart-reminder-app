@@ -53,7 +53,7 @@
                   :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
                   v-html="iconSvg(item.icon)"
                 ></span>
-                <span class="lg:inline" :class="sidebarCollapsed && 'lg:hidden'">{{ item.label }}</span>
+                <span :class="sidebarCollapsed ? 'lg:hidden' : ''">{{ item.label }}</span>
               </span>
             </router-link>
           </nav>
