@@ -1,38 +1,9 @@
 <template>
   <div id="app" class="app-shell">
-    <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex">
-      <!-- Mobile mini sidebar (always visible on left edge) -->
+    <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex lg:ml-0">
+      <!-- Sidebar (full on desktop, overlay on mobile) -->
       <aside
-        v-if="!sidebarOpen"
-        class="fixed inset-y-0 left-0 z-50 w-20 border-r border-white/10 bg-black shadow-xl shadow-black/30 lg:hidden"
-      >
-        <div class="flex flex-col items-center pt-4">
-          <button
-            type="button"
-            class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white"
-            @click="sidebarOpen = true"
-            aria-label="Open sidebar"
-          >
-            SR
-          </button>
-          <nav class="mt-8 space-y-4">
-            <router-link
-              v-for="item in navItems"
-              :key="item.to"
-              :to="item.to"
-              class="flex items-center justify-center rounded-xl p-3 text-white/85 hover:bg-white/10"
-              :class="isRouteActive(item.to) ? '!bg-emerald-200 !text-black' : ''"
-              @click="handleNavClick"
-            >
-              <span class="h-5 w-5 text-white" v-html="iconSvg(item.icon)"></span>
-            </router-link>
-          </nav>
-        </div>
-      </aside>
-
-      <!-- Full sidebar (overlay on mobile, normal on desktop) -->
-      <aside
-        class="fixed inset-y-0 left-0 z-40 w-72 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static lg:block"
+        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'p-5 lg:w-72'
@@ -94,10 +65,20 @@
         </router-link>
       </aside>
 
-      <div class="flex-1 lg:ml-0" :class="{ 'ml-20 lg:ml-0': !sidebarOpen }">
+      <div class="flex-1 lg:ml-0">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
           <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
+              <button
+                v-if="!sidebarOpen"
+                @click="sidebarOpen = true"
+                class="flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+                aria-label="Open menu"
+              >
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+              </button>
               <div>
                 <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Smart Reminder</p>
                 <h1 class="text-lg font-bold text-slate-900">Location Intelligence Dashboard</h1>
