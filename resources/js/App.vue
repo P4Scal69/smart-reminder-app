@@ -3,10 +3,10 @@
     <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex lg:h-screen lg:ml-0">
       <!-- Sidebar (full on desktop, overlay on mobile) -->
       <aside
-        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:h-screen flex flex-col"
+        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 lg:h-screen flex flex-col transition-all"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'px-5 lg:w-64'
+          sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
         ]"
       >
         <div class="flex-shrink-0">
@@ -71,12 +71,12 @@
         </router-link>
       </aside>
 
-      <div class="flex-1 lg:ml-64" :class="{ 'lg:ml-20': sidebarCollapsed }">
+      <div class="flex-1" :class="sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-          <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
               <button
-                v-if="!sidebarOpen"
+                v-if="sidebarCollapsed"
                 @click="sidebarOpen = true"
                 class="flex items-center justify-center rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
                 aria-label="Open menu"
@@ -99,7 +99,7 @@
             </div>
           </div>
         </header>
-<main class="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+<main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8" :class="{ 'lg:ml-20': sidebarCollapsed }">
             <router-view />
           </main>
       </div>
