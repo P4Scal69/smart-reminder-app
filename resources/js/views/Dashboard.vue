@@ -9,7 +9,11 @@
         <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 class="flex items-center gap-2 text-xl font-bold">
-              📡 Real-Time GPS Tracking
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7-7-7 7"/>
+                <circle cx="12" cy="12" r="9" stroke-width="2" fill="none"/>
+              </svg>
+              Real-Time GPS Tracking
               <span v-if="isTrackingLocation" class="animate-pulse rounded-full bg-emerald-500 px-2 py-1 text-xs">ACTIVE</span>
             </h2>
             <p class="mt-1 text-sm text-blue-100">
@@ -18,22 +22,26 @@
                 : 'Enable GPS to automatically trigger reminders when you enter locations'
               }}
             </p>
-            <p v-if="currentPosition" class="mt-2 text-xs text-blue-100">
-              📍 Current: {{ currentPosition.lat.toFixed(6) }}, {{ currentPosition.lng.toFixed(6) }} 
+<p v-if="currentPosition" class="mt-2 flex items-center gap-1 text-xs text-blue-100">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Current: {{ currentPosition.lat.toFixed(6) }}, {{ currentPosition.lng.toFixed(6) }} 
               (±{{ Math.round(currentPosition.accuracy) }}m)
             </p>
             <p v-if="locationError" class="mt-2 text-xs text-red-200">
               ⚠️ {{ locationError }}
             </p>
           </div>
-          <button
+<button
             @click="isTrackingLocation ? stopLocationTracking() : startLocationTracking()"
             class="rounded-xl px-6 py-3 font-bold transition hover:scale-[1.02]"
             :class="isTrackingLocation 
               ? 'bg-red-500 text-white hover:bg-red-600' 
               : 'bg-white text-brand-700 hover:bg-blue-50'"
           >
-            {{ isTrackingLocation ? '⏹️ Stop Tracking' : '▶️ Start Tracking' }}
+            {{ isTrackingLocation ? 'Stop Tracking' : 'Start Tracking' }}
           </button>
         </div>
       </div>
@@ -91,10 +99,16 @@
           <div class="flex justify-between items-center mb-4">
             <div>
               <h2 class="text-lg font-bold text-slate-900">Active Reminder Locations</h2>
-              <p class="mt-1 text-sm text-slate-500">📍 Showing locations with active reminders</p>
+              <p class="mt-1 text-sm text-slate-500 flex items-center gap-1">
+                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Showing locations with active reminders
+              </p>
             </div>
           </div>
-          <div id="map" class="h-96 rounded-xl border border-slate-200"></div>
+          <div id="map" class="h-96 w-full rounded-xl border border-slate-200"></div>
           <div class="mt-3 text-xs text-slate-500">
             <p><strong>Legend:</strong> Blue markers show locations with active reminders. Click a marker to see reminder details. Blue circles show geofence areas.</p>
           </div>
@@ -103,7 +117,12 @@
         <!-- Recent Reminders -->
         <div class="surface-card p-6">
           <h2 class="mb-4 text-lg font-bold text-slate-900">Recent Reminders</h2>
-          <p class="mb-3 text-xs text-slate-500">💡 Click on a reminder to view its location on the map</p>
+          <p class="mb-3 text-xs text-slate-500 flex items-center gap-1">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Click on a reminder to view its location on the map
+          </p>
           <div class="space-y-3">
             <div
               v-for="reminder in reminders.slice(0, 8)"
@@ -115,37 +134,48 @@
             >
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 cursor-pointer" @click="focusOnLocation(reminder.location_id)">
-                  <p class="flex flex-wrap items-center gap-2 font-medium text-slate-800">
-                    {{ reminder.title }}
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="font-medium text-slate-800">{{ reminder.title }}</p>
                     <span v-if="reminder.is_active" class="rounded-full bg-emerald-500 px-2 py-0.5 text-xs text-white">Active</span>
                     <span 
                       v-if="reminder.trigger_type === 'entry' || reminder.trigger_on_enter"
-                      class="rounded-full bg-brand-100 px-2 py-0.5 text-xs text-brand-700"
+                      class="inline-flex items-center gap-1 rounded-full bg-brand-100 px-2 py-0.5 text-xs text-brand-700"
                     >
-                      📥 Entry
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7-7-7 7"/>
+                      </svg>
+                      Entry
                     </span>
                     <span 
                       v-if="reminder.trigger_type === 'exit' || reminder.trigger_on_exit"
-                      class="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700"
+                      class="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700"
                     >
-                      📤 Exit
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7 7 7-7"/>
+                      </svg>
+                      Exit
                     </span>
-                  </p>
+                  </div>
                   <p class="mt-1 flex items-center gap-1 text-sm text-slate-600">
-                    📍 {{ reminder.location?.name }}
+                    <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {{ reminder.location?.name }}
                   </p>
                   <p v-if="reminder.description" class="mt-1 text-xs text-slate-500">{{ reminder.description }}</p>
                 </div>
                 <div class="flex flex-col gap-1">
-                  <button
-                    @click="focusOnLocation(reminder.location_id)"
-                    class="rounded-lg bg-brand-100 p-1.5 text-brand-700 transition hover:bg-brand-200"
-                    title="View on map"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                  </button>
+<button
+                     @click="focusOnLocation(reminder.location_id)"
+                     class="rounded-lg bg-brand-100 p-1.5 text-brand-700 transition hover:bg-brand-200"
+                     title="View on map"
+                   >
+                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                     </svg>
+                   </button>
                   <button
                     @click="deleteReminder(reminder.id)"
                     class="rounded-lg bg-red-100 p-1.5 text-red-600 transition hover:bg-red-200"
@@ -281,7 +311,7 @@ const startLocationTracking = () => {
   });
 
   toast?.value?.addToast({
-    title: '📍 Location Tracking Started',
+    title: 'Location Tracking Started',
     message: 'Now monitoring your location for reminders',
     type: 'success',
     duration: 3000
@@ -363,18 +393,14 @@ const updateUserLocationMarker = (lat, lng, accuracy) => {
     popupAnchor: [0, -40]
   });
 
-  userLocationMarker = L.marker([lat, lng], { icon: userIcon })
-    .addTo(map)
-    .bindPopup(`
-      <div style="text-align: center;">
-        <strong style="color: #667eea; font-size: 16px;">📍 Your Location</strong><br>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
-          <small style="color: #6b7280;">Lat: ${lat.toFixed(6)}</small><br>
-          <small style="color: #6b7280;">Lng: ${lng.toFixed(6)}</small><br>
-          <small style="color: #10b981; font-weight: 600;">Accuracy: ±${Math.round(accuracy)}m</small>
-        </div>
-      </div>
-    `);
+userLocationMarker = L.marker([lat, lng], { icon: userIcon })
+     .addTo(map)
+     .bindPopup(`
+       <div style="text-align: center;">
+         <strong style="color: #667eea; font-size: 16px;">Your Location</strong><br>
+         <span style="color: #666; font-size: 12px;">±${Math.round(accuracy)}m accuracy</span>
+       </div>
+     `);
 
   // Pan to user location
   map.setView([lat, lng], 15);
@@ -733,7 +759,7 @@ const addMarkersToMap = () => {
       marker.bindPopup(`
         <div style="min-width: 200px;">
           <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #1f2937;">
-            📍 ${location.name}
+            ${location.name}
           </h3>
           <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">
             ${location.address || 'No address'}

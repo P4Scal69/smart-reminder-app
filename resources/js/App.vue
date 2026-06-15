@@ -10,25 +10,29 @@
         ]"
       >
         <div class="flex items-center justify-between">
-          <button
-            type="button"
-            class="flex items-center gap-3"
-            :class="sidebarCollapsed ? 'lg:mx-auto' : ''"
-            @click="toggleSidebarCollapsed"
-            aria-label="Toggle sidebar collapse"
-          >
-            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
-            <div v-if="!sidebarCollapsed" class="text-left">
-              <p class="text-lg font-bold text-white">Smart Reminder</p>
-            </div>
-          </button>
-          <button
-            v-if="!sidebarCollapsed"
-            class="rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 lg:hidden"
-            @click="sidebarOpen = false"
-          >
-            Close
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="flex items-center gap-3"
+              :class="sidebarCollapsed && 'lg:mx-auto'"
+              @click="toggleSidebarCollapsed"
+              aria-label="Toggle sidebar collapse"
+            >
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
+              <div class="text-left" :class="sidebarCollapsed && 'lg:hidden'">
+                <p class="text-lg font-bold text-white">Smart Reminder</p>
+              </div>
+            </button>
+          </div>
+<button
+             class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
+             @click="sidebarOpen = false"
+             aria-label="Close sidebar"
+           >
+             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+             </svg>
+           </button>
         </div>
 
         <nav class="mt-8 space-y-2">
@@ -36,27 +40,26 @@
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="top-nav-link flex items-center justify-between text-white/85 hover:bg-white/10 hover:text-white"
+            class="top-nav-link flex items-center text-white/85 hover:bg-white/10 hover:text-white"
             :class="isRouteActive(item.to)
               ? '!bg-emerald-200 !py-3 !text-black hover:!bg-emerald-200 hover:!text-black'
               : ''"
             @click="handleNavClick"
           >
-            <span class="flex items-center gap-3" :class="sidebarCollapsed ? 'lg:mx-auto lg:justify-center' : ''">
+            <span class="flex items-center gap-3 lg:justify-center" :class="sidebarCollapsed && 'lg:mx-auto'">
               <span
                 class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
                 :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
                 v-html="iconSvg(item.icon)"
               ></span>
-              <span v-if="!sidebarCollapsed">{{ item.label }}</span>
+              <span class="lg:hidden">{{ item.label }}</span>
             </span>
           </router-link>
         </nav>
 
         <router-link
-          v-if="!sidebarCollapsed"
           to="/profile"
-          class="mt-8 block rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+          class="mt-8 block rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 lg:hidden"
           @click="handleNavClick"
         >
           <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
@@ -65,9 +68,9 @@
         </router-link>
       </aside>
 
-      <div class="flex-1 lg:ml-0">
+      <div class="flex-1">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8 lg:ml-0" :class="{ 'lg:ml-20': sidebarCollapsed }">
             <div class="flex items-center gap-3">
               <button
                 v-if="!sidebarOpen"
@@ -93,7 +96,7 @@
             </div>
           </div>
         </header>
-        <main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
+        <main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8" :class="{ 'lg:ml-20': sidebarCollapsed }">
           <router-view />
         </main>
       </div>
@@ -151,22 +154,20 @@ const iconSvg = (iconName) => {
 const handleNavClick = () => {
   // On mobile, close sidebar when a link is clicked
   if (window.innerWidth < 1024) {
-    sidebarCollapsed.value = false
     sidebarOpen.value = false
   }
 }
 
-// Mobile: clicking SR toggles the sidebar overlay
-// Desktop: clicking SR toggles between full and mini sidebar
+// Mobile: toggle the overlay sidebar
+// Desktop: toggle between full and mini sidebar
 const toggleSidebarCollapsed = () => {
   const isDesktop = window.matchMedia?.('(min-width: 1024px)')?.matches ?? false
   
   if (isDesktop) {
     sidebarCollapsed.value = !sidebarCollapsed.value
   } else {
-    // On mobile, just toggle the overlay sidebar
-    sidebarOpen.value = !sidebarOpen.value
-    sidebarCollapsed.value = !sidebarOpen.value // Show mini when closed, full when open
+    // On mobile, close sidebar when clicking SR logo (already open)
+    sidebarOpen.value = false
   }
 }
 
