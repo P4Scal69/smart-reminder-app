@@ -52,7 +52,7 @@
                 :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
                 v-html="iconSvg(item.icon)"
               ></span>
-              <span class="lg:hidden">{{ item.label }}</span>
+              <span v-show="!sidebarCollapsed">{{ item.label }}</span>
             </span>
           </router-link>
         </nav>
@@ -60,6 +60,15 @@
         <router-link
           to="/profile"
           class="mt-8 block rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 lg:hidden"
+          @click="handleNavClick"
+        >
+          <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
+          <p class="mt-1 font-semibold text-white">{{ authStore.user?.name || 'User' }}</p>
+          <p class="mt-3 text-sm font-medium text-emerald-200">Open Profile</p>
+        </router-link>
+        <router-link
+          to="/profile"
+          class="mt-auto block rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 hidden lg:block"
           @click="handleNavClick"
         >
           <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
