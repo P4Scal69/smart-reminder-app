@@ -1,8 +1,38 @@
 <template>
   <div id="app" class="app-shell">
     <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex">
+      <!-- Mobile mini sidebar (always visible on left edge) -->
       <aside
-        class="fixed inset-y-0 left-0 z-40 w-72 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static"
+        v-if="!sidebarOpen"
+        class="fixed inset-y-0 left-0 z-50 w-20 border-r border-white/10 bg-black shadow-xl shadow-black/30 lg:hidden"
+      >
+        <div class="flex flex-col items-center pt-4">
+          <button
+            type="button"
+            class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white"
+            @click="sidebarOpen = true"
+            aria-label="Open sidebar"
+          >
+            SR
+          </button>
+          <nav class="mt-8 space-y-4">
+            <router-link
+              v-for="item in navItems"
+              :key="item.to"
+              :to="item.to"
+              class="flex items-center justify-center rounded-xl p-3 text-white/85 hover:bg-white/10"
+              :class="isRouteActive(item.to) ? '!bg-emerald-200 !text-black' : ''"
+              @click="handleNavClick"
+              v-html="iconSvg(item.icon)"
+            >
+            </router-link>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Full sidebar (overlay on mobile, normal on desktop) -->
+      <aside
+        class="fixed inset-y-0 left-0 z-40 w-72 border-r border-white/10 bg-black shadow-xl shadow-black/30 transition-all lg:static lg:block"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-20 lg:px-3 lg:py-4' : 'p-5 lg:w-72'
@@ -22,6 +52,7 @@
             </div>
           </button>
           <button
+            v-if="!sidebarCollapsed"
             class="rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15 lg:hidden"
             @click="sidebarOpen = false"
           >
@@ -44,9 +75,8 @@
               <span
                 class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
                 :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
-              >
-                <component :is="iconComponent(item.icon)" class="h-5 w-5 text-white" />
-              </span>
+                v-html="iconSvg(item.icon)"
+              ></span>
               <span v-if="!sidebarCollapsed">{{ item.label }}</span>
             </span>
           </router-link>
@@ -113,7 +143,9 @@ const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(false)
 
 onMounted(() => {
-  sidebarOpen.value = window.matchMedia?.('(min-width: 1024px)')?.matches ?? true
+  // On desktop, sidebar is always visible
+  sidebarOpen.value = true
+  sidebarCollapsed.value = false
 })
 
 const navItems = [
@@ -125,38 +157,36 @@ const navItems = [
 
 const isRouteActive = (path) => router.currentRoute.value.path.startsWith(path)
 
-const iconComponent = (iconName) => {
+const iconSvg = (iconName) => {
   const icons = {
-    home: {
-      template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>'
-    },
-    'map-pin': {
-      template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>'
-    },
-    bell: {
-      template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>'
-    },
-    user: {
-      template: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
-    }
+    home: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>',
+    'map-pin': '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>',
+    bell: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>',
+    user: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>'
   }
   return icons[iconName] || null
 }
 
 const handleNavClick = () => {
-  const isDesktop = window.matchMedia?.('(min-width: 1024px)')?.matches ?? false
-  if (!isDesktop) sidebarOpen.value = false
+  // On mobile, close sidebar when a link is clicked
+  if (window.innerWidth < 1024) {
+    sidebarCollapsed.value = false
+    sidebarOpen.value = false
+  }
 }
 
+// Mobile: clicking SR toggles the sidebar overlay
+// Desktop: clicking SR toggles between full and mini sidebar
 const toggleSidebarCollapsed = () => {
   const isDesktop = window.matchMedia?.('(min-width: 1024px)')?.matches ?? false
+  
   if (isDesktop) {
     sidebarCollapsed.value = !sidebarCollapsed.value
-    return
+  } else {
+    // On mobile, just toggle the overlay sidebar
+    sidebarOpen.value = !sidebarOpen.value
+    sidebarCollapsed.value = !sidebarOpen.value // Show mini when closed, full when open
   }
-
-  router.push('/dashboard')
-  sidebarOpen.value = false
 }
 
 // Provide toast to all components
