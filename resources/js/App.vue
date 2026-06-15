@@ -24,15 +24,15 @@
               </div>
             </button>
           </div>
-<button
-             class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
-             @click="sidebarOpen = false"
-             aria-label="Close sidebar"
-           >
-             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-             </svg>
-           </button>
+          <button
+            class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
+            @click="sidebarOpen = false"
+            aria-label="Close sidebar"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
 
         <nav class="mt-8 space-y-2">
