@@ -187,12 +187,9 @@
         <div class="space-y-3">
           <button
             @click="handleLogout"
-            class="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-3 font-medium text-slate-700 transition hover:bg-slate-200"
+            class="w-full rounded-lg bg-slate-100 px-4 py-3 font-medium text-slate-700 transition hover:bg-slate-200"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 16a9 9 0 110-18 9 9 0 010 18z"/>
-            </svg>
-            Logout
+             Logout
           </button>
           <button
             @click="confirmDeleteAccount"
