@@ -71,9 +71,9 @@
         </router-link>
       </aside>
 
-      <div class="flex-1">
+      <div class="flex-1 lg:ml-64" :class="{ 'lg:ml-20': sidebarCollapsed }">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8 lg:ml-0" :class="{ 'lg:ml-20': sidebarCollapsed }">
+          <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
               <button
                 v-if="!sidebarOpen"
@@ -99,9 +99,9 @@
             </div>
           </div>
         </header>
-        <main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8" :class="{ 'lg:ml-20': sidebarCollapsed }">
-          <router-view />
-        </main>
+<main class="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+            <router-view />
+          </main>
       </div>
 
       <div
