@@ -3,77 +3,72 @@
     <div v-if="authStore.isFullyAuthenticated" class="min-h-screen lg:flex lg:h-screen lg:ml-0">
       <!-- Sidebar (full on desktop, overlay on mobile) -->
       <aside
-        class="fixed inset-y-0 left-0 z-40 w-64 border-r border-white/10 bg-black shadow-xl shadow-black/30 lg:h-screen flex flex-col transition-all"
+        class="fixed inset-y-0 left-0 z-40 w-56 border-r border-white/10 bg-black shadow-xl shadow-black/30 lg:h-screen flex flex-col transition-all"
         :class="[
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
+          sidebarCollapsed ? 'lg:w-16' : 'lg:w-56'
         ]"
       >
-        <div class="flex-shrink-0">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <button
-                type="button"
-                class="flex items-center gap-3"
-                :class="sidebarCollapsed && 'lg:mx-auto'"
-                @click="toggleSidebarCollapsed"
-                aria-label="Toggle sidebar collapse"
-              >
-                <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
-                <div class="text-left" :class="sidebarCollapsed && 'lg:hidden'">
-                  <p class="text-lg font-bold text-white">Smart Reminder</p>
-                </div>
-              </button>
-            </div>
+        <div class="flex-shrink-0 px-3 py-4">
+          <div class="flex flex-col gap-3">
             <button
-              class="rounded-xl border border-white/15 bg-white/10 p-2 text-white transition hover:bg-white/15 lg:hidden"
-              @click="sidebarOpen = false"
-              aria-label="Close sidebar"
+              type="button"
+              class="flex items-center gap-3 mx-auto"
+              @click="toggleSidebarCollapsed"
+              aria-label="Toggle sidebar collapse"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-lg font-bold text-white">SR</span>
+              <div class="text-left" :class="sidebarCollapsed && 'lg:hidden'">
+                <p class="text-lg font-bold text-white">Smart Reminder</p>
+              </div>
             </button>
           </div>
-
-          <nav class="mt-8 space-y-2">
-            <router-link
-              v-for="item in navItems"
-              :key="item.to"
-              :to="item.to"
-              class="top-nav-link flex items-center text-white/85 hover:bg-white/10 hover:text-white"
-              :class="isRouteActive(item.to)
-                ? '!bg-emerald-200 !py-3 !text-black hover:!bg-emerald-200 hover:!text-black'
-                : ''"
-              @click="handleNavClick"
-            >
-              <span class="flex items-center gap-3 lg:justify-center" :class="sidebarCollapsed && 'lg:mx-auto'">
-                <span
-                  class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
-                  :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
-                  v-html="iconSvg(item.icon)"
-                ></span>
-                <span :class="sidebarCollapsed ? 'lg:hidden' : ''">{{ item.label }}</span>
-              </span>
-            </router-link>
-          </nav>
         </div>
+
+        <nav class="mt-8 space-y-2 px-2">
+          <router-link
+            v-for="item in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="top-nav-link flex items-center text-white/85 hover:bg-white/10 hover:text-white"
+            :class="isRouteActive(item.to)
+              ? '!bg-emerald-200 !py-3 !text-black hover:!bg-emerald-200 hover:!text-black'
+              : ''"
+            @click="handleNavClick"
+          >
+            <span class="flex items-center gap-3" :class="sidebarCollapsed ? 'lg:justify-center lg:w-full' : ''">
+              <span
+                class="grid h-9 w-9 place-items-center rounded-xl bg-white/10"
+                :class="isRouteActive(item.to) ? '!bg-black/10 !text-black' : ''"
+                v-html="iconSvg(item.icon)"
+              ></span>
+              <span :class="sidebarCollapsed ? 'lg:hidden' : ''">{{ item.label }}</span>
+            </span>
+          </router-link>
+        </nav>
 
         <router-link
           to="/profile"
-          class="rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 mt-auto lg:block"
-          :class="sidebarCollapsed ? 'lg:hidden' : ''"
+          class="rounded-2xl border border-white/15 bg-white/5 text-white transition hover:-translate-y-0.5 hover:bg-white/10 mt-auto flex items-center justify-center lg:block"
+          :class="sidebarCollapsed ? 'lg:p-3' : 'lg:p-4'"
           @click="handleNavClick"
         >
-          <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
-          <p class="mt-1 font-semibold text-white">{{ authStore.user?.name || 'User' }}</p>
-          <p class="mt-3 text-sm font-medium text-emerald-200">Open Profile</p>
+          <span v-if="sidebarCollapsed" class="lg:inline-block">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 118 0zM12 14v7m-3 0h6"/>
+            </svg>
+          </span>
+          <span v-else class="lg:inline-block">
+            <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
+            <p class="mt-1 font-semibold text-white">{{ authStore.user?.name || 'User' }}</p>
+            <p class="mt-3 text-sm font-medium text-emerald-200">Open Profile</p>
+          </span>
         </router-link>
       </aside>
 
-      <div class="flex-1" :class="sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'">
+      <div class="flex-1" :class="sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
-          <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
               <button
                 v-if="sidebarCollapsed"
@@ -99,9 +94,9 @@
             </div>
           </div>
         </header>
-<main class="relative z-10 mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8" :class="{ 'lg:ml-20': sidebarCollapsed }">
-            <router-view />
-          </main>
+        <main class="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+          <router-view />
+        </main>
       </div>
 
       <div
@@ -139,7 +134,6 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
   { to: '/locations', label: 'Locations', icon: 'map-pin' },
   { to: '/reminders', label: 'Reminders', icon: 'bell' },
-  { to: '/profile', label: 'Profile', icon: 'user' },
 ]
 
 const isRouteActive = (path) => router.currentRoute.value.path.startsWith(path)
