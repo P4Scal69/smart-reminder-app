@@ -61,7 +61,8 @@
 
         <router-link
           to="/profile"
-          class="rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 mt-auto"
+          class="rounded-2xl border border-white/15 bg-white/5 p-4 text-white transition hover:-translate-y-0.5 hover:bg-white/10 mt-auto lg:block"
+          :class="sidebarCollapsed ? 'lg:hidden' : ''"
           @click="handleNavClick"
         >
           <p class="text-xs uppercase tracking-wider text-white/60">Signed in as</p>
