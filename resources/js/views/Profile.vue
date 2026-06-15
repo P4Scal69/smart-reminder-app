@@ -1,6 +1,6 @@
 <template>
   <div class="app-shell py-8">
-    <div class="mx-auto max-w-[1000px] px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="surface-card-soft mb-6 p-6">
         <div class="flex items-center gap-4">
