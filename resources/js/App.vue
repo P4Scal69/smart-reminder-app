@@ -23,8 +23,8 @@
               class="flex items-center justify-center rounded-xl p-3 text-white/85 hover:bg-white/10"
               :class="isRouteActive(item.to) ? '!bg-emerald-200 !text-black' : ''"
               @click="handleNavClick"
-              v-html="iconSvg(item.icon)"
             >
+              <span class="h-5 w-5 text-white" v-html="iconSvg(item.icon)"></span>
             </router-link>
           </nav>
         </div>
