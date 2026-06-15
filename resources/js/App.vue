@@ -94,7 +94,7 @@
         </router-link>
       </aside>
 
-      <div class="flex-1 lg:ml-0">
+      <div class="flex-1 lg:ml-0" :class="{ 'ml-20 lg:ml-0': !sidebarOpen }">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-md">
           <div class="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div class="flex items-center gap-3">
